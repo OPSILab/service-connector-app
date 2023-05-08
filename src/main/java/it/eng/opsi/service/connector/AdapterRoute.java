@@ -102,7 +102,7 @@ class AdapterRoute extends RouteBuilder {
 					@Override
 					public void process(Exchange exchange) throws Exception {
 						Object body = exchange.getIn().getBody();
-						Adapter adapter= new AdapterSearchImpl();
+						Adapter adapter= new AdapterApplicationImpl();
 						Object in = adapter.adaptIn(body);
 						exchange.getIn().setBody(in);
 					}
