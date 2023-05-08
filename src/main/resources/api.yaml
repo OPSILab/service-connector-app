@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  title: Hochschulstart Mock-API
+  description: An API-Spec used for hochschulstart as first try.
+  version: 0.1.0
+servers:
+  - url: https://hochschulstart-hochschulstart-dev.k8s.across-h2020.eu
+paths:
+  /applications/search:
+    get:
+      summary: Returns a list of courses a user could apply to.
+      description: Returns a list of courses a user could apply to.
+      parameters:
+        - name: institution
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: subject
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: federalStateId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':    # status code
+          description: A JSON array of courses to apply to
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Search'
+
+  /applications:
+    get:
+      summary: Returns a list of courses applied to.
+      description: Returns a list of courses applied to.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':    # status code
+          description: A JSON array of courses applied to
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+
+    post:
+      summary: Apply for an courses.
+      description: Apply for an courses.
+      requestBody:
+        $ref: '#/components/requestBodies/Application'
+      responses:
+        '200':    # status code
+          description: A JSON array of courses applied to
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /applications/status:
+    get:
+      summary: Returns the status of an application.
+      description: Returns the status of an application.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':    # status code
+          description: the status of an application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+
+components:
+  schemas:
+    Search:
+      type: object
+      properties:
+        id:
+          type: integer
+        federalStateId:
+          type: integer
+        name:
+          type: string
+        semester:
+          type: string
+        institution:
+          type: string
+        degree:
+          type: string
+        applicationPeriodFrom:
+          type: string
+          format: date-time
+        applicationPeriodTo:
+          type: string
+          format: date-time
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: integer
+        semester:
+          type: string
+        institution:
+          type: string
+        course:
+          type: string
+        admissionPeriodFrom:
+          type: string
+          format: date-time
+        admissionPeriodTo:
+          type: string
+          format: date-time
+        period:
+          type: string
+
+    Status:
+      type: object
+      properties:
+        id:
+          type: integer
+        level:
+          type: string
+        note:
+          type: string
+        pointOfEntry:
+          type: string
+        modified:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+
+  requestBodies:
+    Application:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              firstname:
+                type: string
+              lastname:
+                type: string
+              addressStreet:
+                type: string
+              addressHouseNumber:
+                type: string
+              addressZipCode:
+                type: string
+              addressCity:
+                type: string
+              addressState:
+                type: string
+              addressCountry:
+                type: string
+              consentPrivacy:
+                type: boolean
+              consentPersonalData:
+                type: boolean
+              consentAllowContact:
+                type: boolean
+              semester:
+                type: string
+              institution:
+                type: string
+              course:
+                type: string
