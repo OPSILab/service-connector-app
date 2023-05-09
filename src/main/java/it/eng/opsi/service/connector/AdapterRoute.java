@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,11 @@ class AdapterRoute extends RouteBuilder {
 
 	@Value("${adapter.api.path}")
 	String contextPath;
+	
+	@Autowired
+    AdapterApplicationImpl adapterApplication;
+	@Autowired
+    AdapterSearchImpl adapterSearch;
 	
 	@Bean
 	ServletRegistrationBean<CamelHttpTransportServlet> servletRegistrationBean() {
@@ -80,8 +86,7 @@ class AdapterRoute extends RouteBuilder {
 						@Override
 						public void process(Exchange exchange) throws Exception {
 							Object bodyOut = exchange.getIn().getBody();
-							Adapter adapter= new AdapterSearchImpl();
-							ArrayList<OutBean> out = adapter.adaptOut(bodyOut);
+							ArrayList<OutBean> out = adapterSearch.adaptOut(bodyOut);
 							exchange.getIn().setBody(out);
 						}
 					})
@@ -121,9 +126,9 @@ class AdapterRoute extends RouteBuilder {
 
 					@Override
 					public void process(Exchange exchange) throws Exception {
+						
 						Object bodyOut = exchange.getIn().getBody();
-						Adapter adapter= new AdapterApplicationImpl();
-						ArrayList<OutBean> out = adapter.adaptOut(bodyOut);
+						ArrayList<OutBean> out = adapterApplication.adaptOut(bodyOut);
 						exchange.getIn().setBody(out);
 					}
 				})

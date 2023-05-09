@@ -3,6 +3,8 @@ package it.eng.opsi.service.connector.adapter;
 
 
 import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,9 +19,22 @@ import it.eng.opsi.service.connector.service.model.Search;
  * 
  */
 
+
+
 @Component 
 
 public class AdapterSearchImpl implements Adapter{
+
+    @Value("${output.title}")
+	String title;
+
+	@Value("${output.language}")
+	String language;
+
+    @Value("${output.description}")
+	String description;
+
+    
 
     public   ArrayList<OutBean> adaptOut(Object body) {
       
@@ -33,7 +48,7 @@ public class AdapterSearchImpl implements Adapter{
                 output1.setTitle("Search output");
                 output1.setDescription("Search output element");
                 output1.setType("string");            
-                output1.setLanguage("English");
+                output1.setLanguage(language);
                 // Serialize the content
                 String content = respElem.getInstitution() + " - " +
                 		respElem.getName() + " - " +

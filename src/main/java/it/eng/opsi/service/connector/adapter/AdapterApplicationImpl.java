@@ -1,7 +1,7 @@
 package it.eng.opsi.service.connector.adapter;
 
 import java.util.ArrayList;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,19 +16,28 @@ import it.eng.opsi.service.connector.service.model.ApplicationPostRequest;
  */
 
 @Component
-
 public class AdapterApplicationImpl implements Adapter {
 
+	    @Value("${output.title}")
+		String title;
+
+		@Value("${output.language}")
+		String language;
+
+	    @Value("${output.description}")
+		String description;
+
+	
 	public ArrayList<OutBean> adaptOut(Object body) {
 
 		ArrayList<OutBean> adaptOutput = new ArrayList<OutBean>();
 		try {
 			OutBean output1 = new OutBean();
 			output1.setOutputId("1");
-			output1.setTitle("Application output");
-			output1.setDescription("Application output element");
+			output1.setTitle( title);
+			output1.setDescription(language);
 			output1.setType("string");
-			output1.setLanguage("English");
+			output1.setLanguage(description);
 	// Serialize the content
 			String content = this.OjbToJSON(body);
 	// Encode the Content String
