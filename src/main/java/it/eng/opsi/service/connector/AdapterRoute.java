@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import it.eng.opsi.service.connector.adapter.Adapter;
 import it.eng.opsi.service.connector.adapter.AdapterApplicationImpl;
 import it.eng.opsi.service.connector.adapter.AdapterSearchImpl;
+import it.eng.opsi.service.connector.adapter.RemoteAdapterImpl;
 import it.eng.opsi.service.connector.beans.OutBean;
 import it.eng.opsi.service.connector.service.ClientService;
 import it.eng.opsi.service.connector.service.model.ApplicationPostRequest;
@@ -29,17 +30,20 @@ class AdapterRoute extends RouteBuilder {
 
 	@Value("${adapter.api.path}")
 	String contextPath;
-	
+
 	@Autowired
-    AdapterApplicationImpl adapterApplication;
+	AdapterApplicationImpl adapterApplication;
 	@Autowired
-    AdapterSearchImpl adapterSearch;
-	
+	AdapterSearchImpl adapterSearch;
+	@Autowired
+	RemoteAdapterImpl remoteAdapterImpl;
+
 	@Bean
 	ServletRegistrationBean<CamelHttpTransportServlet> servletRegistrationBean() {
 
-		ServletRegistrationBean<CamelHttpTransportServlet> servlet = new ServletRegistrationBean<CamelHttpTransportServlet>(new CamelHttpTransportServlet(),
-				contextPath+ "/*");
+		ServletRegistrationBean<CamelHttpTransportServlet> servlet = new ServletRegistrationBean<CamelHttpTransportServlet>(
+				new CamelHttpTransportServlet(),
+				contextPath + "/*");
 		servlet.setName("CamelServlet");
 		return servlet;
 	}
@@ -54,90 +58,84 @@ class AdapterRoute extends RouteBuilder {
 				.apiProperty("cors", "true") // cross-site
 				.apiContextRouteId("doc-api").component("servlet").bindingMode(RestBindingMode.json)
 				.dataFormatProperty("prettyPrint", "true");
-		
-        // REST endpoints to wrap&adapt the remote service api to adapt
-		rest("/applications").description("GET REST Service adaptation").id("api-route").produces(MediaType.APPLICATION_JSON)
+
+		// REST endpoints to wrap&adapt the remote service api to adapt
+		rest("/applications").description("GET REST Service adaptation").id("api-route")
+				.produces(MediaType.APPLICATION_JSON)
 				.consumes(MediaType.APPLICATION_JSON).bindingMode(RestBindingMode.auto)
-			
-				
-			.get("/search?institution={institution}&subject={subject}&federalStateId={federalStateId}")
+
+				.get("/search?institution={institution}&subject={subject}&federalStateId={federalStateId}")
 				.outType(OutBean.class)
 				.enableCORS(true)
 				.route()
 				.process(new Processor() {
 					/* to invoke [GET] the remote service */
-						@Override
-						public void process(Exchange exchange) throws Exception {
-
-						    String institution=(String)exchange.getIn().getHeader("institution");
-						    String subject=(String)exchange.getIn().getHeader("subject");
-						    String federalStateId=(String)exchange.getIn().getHeader("federalStateId");
-						    
-							String response = ClientService.invokeGET(serviceurl+"/search?" 
-								    +"institution="+(institution!=null?institution:"")
-						        	+(subject!=null?"&subject="+subject:"")
-						        	+(federalStateId!=null?"&federalStateId="+federalStateId:""));
-							exchange.getIn().setBody(response);
-						}
-					})
-					/* to invoke the output adaptation */
-					.process(new Processor() {
-	
-						@Override
-						public void process(Exchange exchange) throws Exception {
-							Object bodyOut = exchange.getIn().getBody();
-							ArrayList<OutBean> out = adapterSearch.adaptOut(bodyOut);
-							exchange.getIn().setBody(out);
-						}
-					})
-					.endRest();
-				
-
-								
-		rest("/applications").description("POST REST Service adaptation").id("api-route").produces(MediaType.APPLICATION_JSON)
-		    .consumes(MediaType.APPLICATION_JSON).bindingMode(RestBindingMode.auto)	
-			
-		    .post()
-				.type(ApplicationPostRequest.class)
-				.enableCORS(true)
-				.outType(OutBean.class)
-				.route()
-				/* to invoke the POST input adaptation */
-				.process(new Processor() {					
 					@Override
 					public void process(Exchange exchange) throws Exception {
-						Object body = exchange.getIn().getBody();
-						Adapter adapter= new AdapterApplicationImpl();
-						Object in = adapter.adaptIn(body);
-						exchange.getIn().setBody(in);
-					}
-				})
-				/* to invoke the remote service */
-				.process(new Processor() {					
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						Object bodyIn =  exchange.getIn().getBody();
-						String response = ClientService.invokePOST(bodyIn, serviceurl);
+
+						String institution = (String) exchange.getIn().getHeader("institution");
+						String subject = (String) exchange.getIn().getHeader("subject");
+						String federalStateId = (String) exchange.getIn().getHeader("federalStateId");
+
+						String response = ClientService.invokeGET(serviceurl + "/search?"
+								+ "institution=" + (institution != null ? institution : "")
+								+ (subject != null ? "&subject=" + subject : "")
+								+ (federalStateId != null ? "&federalStateId=" + federalStateId : ""));
 						exchange.getIn().setBody(response);
 					}
-					})
+				})
 				/* to invoke the output adaptation */
 				.process(new Processor() {
 
 					@Override
 					public void process(Exchange exchange) throws Exception {
-						
 						Object bodyOut = exchange.getIn().getBody();
-						ArrayList<OutBean> out = adapterApplication.adaptOut(bodyOut);
+						ArrayList<OutBean> out = remoteAdapterImpl.adaptOut(bodyOut);
 						exchange.getIn().setBody(out);
 					}
 				})
 				.endRest();
 
-		
-		
-		
-		
-		
+		rest("/applications").description("POST REST Service adaptation").id("api-route")
+				.produces(MediaType.APPLICATION_JSON)
+				.consumes(MediaType.APPLICATION_JSON).bindingMode(RestBindingMode.auto)
+
+				.post()
+				.type(ApplicationPostRequest.class)
+				.enableCORS(true)
+				.outType(OutBean.class)
+				.route()
+				/* to invoke the POST input adaptation */
+				.process(new Processor() {
+					@Override
+					public void process(Exchange exchange) throws Exception {
+						Object body = exchange.getIn().getBody();
+						Adapter adapter = new RemoteAdapterImpl();
+						Object in = adapter.adaptIn(body);
+						exchange.getIn().setBody(in);
+					}
+				})
+				/* to invoke the remote service */
+				.process(new Processor() {
+					@Override
+					public void process(Exchange exchange) throws Exception {
+						Object bodyIn = exchange.getIn().getBody();
+						String response = ClientService.invokePOST(bodyIn, serviceurl);
+						exchange.getIn().setBody(response);
+					}
+				})
+				/* to invoke the output adaptation */
+				.process(new Processor() {
+
+					@Override
+					public void process(Exchange exchange) throws Exception {
+
+						Object bodyOut = exchange.getIn().getBody();
+						ArrayList<OutBean> out = remoteAdapterImpl.adaptOut(bodyOut);
+						exchange.getIn().setBody(out);
+					}
+				})
+				.endRest();
+
 	}
 }
