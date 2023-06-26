@@ -101,7 +101,7 @@ class AdapterRoute extends RouteBuilder {
 				.consumes(MediaType.APPLICATION_JSON).bindingMode(RestBindingMode.auto)
 
 				.post()
-				.type(ApplicationPostRequest.class)
+				.type(Object.class)
 				.enableCORS(true)
 				.outType(OutBean.class)
 				.route()
@@ -110,7 +110,7 @@ class AdapterRoute extends RouteBuilder {
 					@Override
 					public void process(Exchange exchange) throws Exception {
 						Object body = exchange.getIn().getBody();
-						Adapter adapter = new RemoteAdapterImpl();
+						Adapter adapter= new AdapterApplicationImpl();
 						Object in = adapter.adaptIn(body);
 						exchange.getIn().setBody(in);
 					}

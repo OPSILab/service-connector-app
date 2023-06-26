@@ -49,14 +49,15 @@ public class RemoteAdapterImpl implements Adapter {
 
     public ArrayList<OutBean> adaptOut(Object body) throws IOException, InterruptedException {
 
+        ObjectMapper mapper = new ObjectMapper();
+
         HttpClient client = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:5500/api/mapper"))
-                .POST(BodyPublishers.ofString(
-                        "{\"sourceDataType\" : \".json\",\"sourceData\": [{\"institution\" : \"University\",\"name\" : \"UNIPA\",\"degree\":\"master\",\"semester\":\"1\",\"applicationPeriodFrom\":\"01/10/2022\",\"applicationPeriodTo\":\"01/03/2023\"}], \"adapterID\" : \"search1\"}"))
+                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \".json\",\"sourceData\": ["+mapper.writeValueAsString(body)+"], \"adapterID\" : \"search1\"}"))
                 .setHeader("Content-Type", "application/json")
                 .build();
 
@@ -67,8 +68,6 @@ public class RemoteAdapterImpl implements Adapter {
         // } catch (Exception e) {
         // System.out.println(e);
         // }
-
-        ObjectMapper mapper = new ObjectMapper();
 
         // De-serialize to an object
         ArrayList<OutBean> mapped = mapper.readValue(response.body(), ArrayList.class);
