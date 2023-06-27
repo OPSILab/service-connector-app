@@ -57,7 +57,7 @@ public class RemoteAdapterImpl implements Adapter {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:5500/api/mapper"))
-                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \".json\",\"sourceData\": ["+mapper.writeValueAsString(body)+"], \"adapterID\" : \"search1\"}"))
+                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \".json\",\"sourceData\": ["+body+"], \"adapterID\" : \"search1\"}"))
                 .setHeader("Content-Type", "application/json")
                 .build();
 
