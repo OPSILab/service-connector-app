@@ -101,7 +101,7 @@ class AdapterRoute extends RouteBuilder {
 				.consumes(MediaType.APPLICATION_JSON).bindingMode(RestBindingMode.auto)
 
 				.post()
-				.type(Object.class)
+				.type(ApplicationPostRequest.class)
 				.enableCORS(true)
 				.outType(OutBean.class)
 				.route()

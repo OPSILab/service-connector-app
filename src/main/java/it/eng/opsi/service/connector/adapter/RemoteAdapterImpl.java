@@ -47,6 +47,9 @@ public class RemoteAdapterImpl implements Adapter {
     @Value("${remoteAdapterURL}")
     String remoteAdapterURL;
 
+    @Value("${remoteAdapterID}")
+    String remoteAdapterID;
+
     public ArrayList<OutBean> adaptOut(Object body) throws IOException, InterruptedException {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -57,7 +60,7 @@ public class RemoteAdapterImpl implements Adapter {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:5500/api/mapper"))
-                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \".json\",\"sourceData\": ["+body+"], \"adapterID\" : \"search1\"}"))
+                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \"json\",\"sourceData\": "+body+", \"adapterID\" : \""+remoteAdapterID+"\", \"config\" : {\"entityNameField\" : \"title\"}}"))
                 .setHeader("Content-Type", "application/json")
                 .build();
 
