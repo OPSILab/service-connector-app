@@ -18,6 +18,7 @@ import it.eng.opsi.service.connector.adapter.Adapter;
 import it.eng.opsi.service.connector.adapter.AdapterApplicationImpl;
 import it.eng.opsi.service.connector.adapter.AdapterSearchImpl;
 import it.eng.opsi.service.connector.adapter.RemoteAdapterImpl;
+import it.eng.opsi.service.connector.adapter.RemoteAdapterApplicationImpl;
 import it.eng.opsi.service.connector.beans.OutBean;
 import it.eng.opsi.service.connector.service.ClientService;
 import it.eng.opsi.service.connector.service.model.ApplicationPostRequest;
@@ -37,6 +38,8 @@ class AdapterRoute extends RouteBuilder {
 	AdapterSearchImpl adapterSearch;
 	@Autowired
 	RemoteAdapterImpl remoteAdapterImpl;
+	@Autowired
+	RemoteAdapterApplicationImpl remoteAdapterApplicationImpl;
 
 	@Bean
 	ServletRegistrationBean<CamelHttpTransportServlet> servletRegistrationBean() {
@@ -110,7 +113,7 @@ class AdapterRoute extends RouteBuilder {
 					@Override
 					public void process(Exchange exchange) throws Exception {
 						Object body = exchange.getIn().getBody();
-						Adapter adapter= new AdapterApplicationImpl();
+						Adapter adapter= new RemoteAdapterApplicationImpl();
 						Object in = adapter.adaptIn(body);
 						exchange.getIn().setBody(in);
 					}
@@ -131,7 +134,7 @@ class AdapterRoute extends RouteBuilder {
 					public void process(Exchange exchange) throws Exception {
 
 						Object bodyOut = exchange.getIn().getBody();
-						ArrayList<OutBean> out = remoteAdapterImpl.adaptOut(bodyOut);
+						ArrayList<OutBean> out = remoteAdapterApplicationImpl.adaptOut(bodyOut);
 						exchange.getIn().setBody(out);
 					}
 				})
