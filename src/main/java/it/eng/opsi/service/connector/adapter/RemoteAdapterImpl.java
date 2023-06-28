@@ -47,8 +47,11 @@ public class RemoteAdapterImpl implements Adapter {
     @Value("${remoteAdapterURL}")
     String remoteAdapterURL;
 
-    @Value("${remoteAdapterID}")
-    String remoteAdapterID;
+    @Value("${remoteAdapterApplicationID}")
+    String remoteAdapterApplicationID;
+
+    @Value("${remoteAdapterSearchID}")
+    String remoteAdapterSearchID;
 
     public ArrayList<OutBean> adaptOut(Object body) throws IOException, InterruptedException {
 
@@ -60,7 +63,7 @@ public class RemoteAdapterImpl implements Adapter {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:5500/api/mapper"))
-                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \"json\",\"sourceData\": "+body+", \"adapterID\" : \""+remoteAdapterID+"\", \"config\" : {\"entityNameField\" : \"title\"}}"))
+                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \"json\",\"sourceData\": "+body+", \"adapterID\" : \""+remoteAdapterSearchID+"\", \"config\" : {\"entityNameField\" : \"title\"}}"))
                 .setHeader("Content-Type", "application/json")
                 .build();
 
