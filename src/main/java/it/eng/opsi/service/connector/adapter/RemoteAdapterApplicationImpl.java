@@ -62,20 +62,15 @@ public class RemoteAdapterApplicationImpl implements Adapter {
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:5500/api/mapper"))
+                .uri(URI.create(remoteAdapterURL))
                 .POST(BodyPublishers.ofString("{\"sourceDataType\" : \"json\",\"sourceData\": "+body+", \"adapterID\" : \""+remoteAdapterApplicationID+"\"}"))
                 .setHeader("Content-Type", "application/json")
                 .build();
 
         HttpResponse<String> response;// = new HttpResponse<ArrayList<OutBean>>();
 
-        // try {
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        // } catch (Exception e) {
-        // System.out.println(e);
-        // }
-
-        // De-serialize to an object
+       
         ArrayList<OutBean> mapped = mapper.readValue(response.body(), ArrayList.class);
 
         return mapped;
