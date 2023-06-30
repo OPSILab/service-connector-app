@@ -63,7 +63,7 @@ public class RemoteAdapterApplicationImpl implements Adapter {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(remoteAdapterURL))
-                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \"json\",\"sourceData\": "+body+", \"adapterID\" : \""+remoteAdapterApplicationID+"\"}"))
+                .POST(BodyPublishers.ofString("{\"sourceDataType\" : \"json\",\"sourceData\": "+body+", \"adapterID\" : \""+remoteAdapterApplicationID+"\", \"config\" : {\"NGSI_entity\" : false}}"))
                 .setHeader("Content-Type", "application/json")
                 .build();
 
